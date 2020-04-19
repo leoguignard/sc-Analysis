@@ -146,7 +146,7 @@ def enseml2gene(fi, f_ensembl='Ensembl2Gene.txt'):
 
             gene = g if count[g]==1 else g+('='*(count[g]-1))
             g2Ens[gene]= ens
-        done.add(sl[0])
+        done.add(ens)
     Ens2g = {}
     for k, v in g2Ens.items():
         Ens2g.setdefault(v, []).append(k)

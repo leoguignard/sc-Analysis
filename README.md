@@ -8,6 +8,7 @@ This is just a notebook to read and analyse single-cell "omics" data based on th
 - setup.py: Installation script
 - README.md: This file
 - Data-Analysis.ipynb: an jupyter notebook with which you might be able to analyse single cell data
+- LICENSE: the license file
 
 ## Basic usage
 
@@ -42,5 +43,3 @@ It is possible that you lack the rights to install the necessary libraries. In t
 ```shell
 pip install . --user
 ```
-
-
