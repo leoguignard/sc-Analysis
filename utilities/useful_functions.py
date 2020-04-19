@@ -152,11 +152,11 @@ def enseml2gene(fi, f_ensembl='Ensembl2Gene.txt'):
         Ens2g.setdefault(v, []).append(k)
     Ens2g = {k:sorted(v, key=len)[0] for k, v in Ens2g.items()}
     not_found = []
-    with open('Data/'+fi) as f:
+    with open(fi) as f:
         lines = f.readlines()
     new_fi = fi.replace('.csv', '.Genes.csv')
     new_lines = []
-    with open('Data/'+new_fi, 'w') as f:
+    with open(new_fi, 'w') as f:
         new_lines += [lines[0]]
         for l in lines[1:]:
             Ens = l.split(',')[0]
