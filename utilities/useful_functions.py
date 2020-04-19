@@ -72,10 +72,10 @@ def cluster_and_plot(adata, val, c_name=None):
 def get_clusters_et_al(path, size=40):
     f = path
     ext = os.path.splitext(f)[-1]
-    if ext is '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')):
+    if ext == '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')):
         adata = ad.read_h5ad(path.replace(ext, '.h5ad'))
         results_file = path.replace(ext, '.h5ad')
-    elif ext is '.csv':
+    elif ext == '.csv':
         results_file = path.replace(ext, '.h5ad')
         adata = ad.read_csv(f).transpose()
         sc.pp.filter_genes(adata, min_cells=3)
