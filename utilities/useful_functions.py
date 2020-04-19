@@ -75,7 +75,7 @@ def get_clusters_et_al(path, size=40):
     if ext is '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')):
         adata = ad.read_h5ad(path.replace(ext, '.h5ad'))
         results_file = path.replace(ext, '.h5ad')
-    else:
+    elif ext is '.csv':
         results_file = path.replace(ext, '.h5ad')
         adata = ad.read_csv(f).transpose()
         sc.pp.filter_genes(adata, min_cells=3)
@@ -91,6 +91,9 @@ def get_clusters_et_al(path, size=40):
         sc.tl.umap(adata)
         sc.tl.leiden(adata, .25)
         adata.write(results_file)
+    else:
+        print('Can only work with .csv or .h5ad files (you gave {})'.format(path))
+        return
     # sc.pl.highly_variable_genes(adata.raw)
     sc.pl.pca(adata, color=['Bmp2', 'Sox9', 'Sox17'], size=size)
     sc.pl.pca_variance_ratio(adata, log=True)
@@ -122,3 +125,44 @@ def find_gene(adata, to_find):
     print('{n:d} genes found corresponding to {tf:s}:'.format(n=len(found), tf=to_find))
     for f in found:
         print('\t{f:s}'.format(f=f))
+
+def enseml2gene(fi, f_ensembl='Ensembl2Gene.txt'):
+    if fi[-4:] != '.csv':
+        print('Can only work with csv files (you gave: {})'.fromat(fi))
+        return
+    with open(f_ensembl) as f:
+        lines = f.readlines()[1:]
+    g2Ens = {}
+    Ens2g = {}
+    count = {}
+    done = set()
+    for l in lines:
+        ens, g = l.split()
+        if not ens in done:
+            if g in count:
+                count[g] += 1
+            else:
+                count[g] = 1
+
+            gene = g if count[g]==1 else g+('='*(count[g]-1))
+            g2Ens[gene]= ens
+        done.add(sl[0])
+    Ens2g = {}
+    for k, v in g2Ens.items():
+        Ens2g.setdefault(v, []).append(k)
+    Ens2g = {k:sorted(v, key=len)[0] for k, v in Ens2g.items()}
+    not_found = []
+    with open('Data/'+fi) as f:
+        lines = f.readlines()
+    new_fi = fi.replace('.csv', '.Genes.csv')
+    new_lines = []
+    with open('Data/'+new_fi, 'w') as f:
+        new_lines += [lines[0]]
+        for l in lines[1:]:
+            Ens = l.split(',')[0]
+            new_l = l.replace(Ens, Ens2g.get(Ens, Ens))
+            if not Ens in Ens2g:
+                not_found += [Ens]
+            new_lines += [new_l]
+        f.writelines(new_lines)
+        f.close()
