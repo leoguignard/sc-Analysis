@@ -145,11 +145,11 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             ax.set_ylabel('Number of cells')
             ax.legend()
             plt.show()
-        final_filt = np.ones_like(adata[:,0])
+        final_filt = np.ones(adata.shape[0], dtype=bool)
         if filter_ncounts:
-            final_filt[filter_tab_ncounts==False] = 0
+            final_filt[filter_tab_ncounts==False] = False
         if filter_mito:
-            final_filt[filter_tab_mito==False] = 0
+            final_filt[filter_tab_mito==False] = False
         adata = adata[final_filt, :]
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
