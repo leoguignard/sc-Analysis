@@ -77,13 +77,12 @@ def is_number(s):
     except ValueError:
         return False
 
-def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
+def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, reload_file=False):
     f = path
     ext = os.path.splitext(f)[-1]
-    if ((ext == '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')))
-        and not filter_ncounts and not filter_mito):
-        adata = ad.read_h5ad(path.replace(ext, '.h5ad'))
-        results_file = path.replace(ext, '.h5ad')
+    if ext == '.h5ad':
+        adata = ad.read_h5ad(path)
+        results_file = path
     elif ext == '.csv':
         results_file = path.replace(ext, '.h5ad')
         adata = ad.read_csv(f).transpose()
