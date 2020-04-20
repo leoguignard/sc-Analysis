@@ -93,7 +93,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             if isinstance(filter_ncounts, bool):
                 adata.obs['n_counts'] = adata.X.sum(axis=1)
                 fig, ax = plt.subplots(1, 1)
-                ax.hist(adata.obs.n_genes, bins=100)
+                ax.hist(adata.obs.n_genes, bins=100,
+                        np.percentile(adata.obs.n_genes, 99))
                 ax.set_xlabel('Number of counts')
                 ax.set_ylabel('Number of cells')
                 plt.show()
@@ -108,7 +109,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab_ncounts==False), len(filter_tab_ncounts)))
             fig, ax = plt.subplots(1, 1)
             ax.hist([adata.obs.n_genes[filter_tab_ncounts], adata.obs.n_genes[filter_tab_ncounts==False]],
-                    color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked')
+                    color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked',
+                    np.percentile(adata.obs.n_genes, 99))
             ax.set_xlabel('Number of counts')
             ax.set_ylabel('Number of cells')
             ax.legend()
@@ -121,7 +123,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
                 adata.obs['percent_mito'] = np.sum(
                     adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
                 fig, ax = plt.subplots(1, 1)
-                ax.hist(adata.obs.percent_mito, bins=100)
+                ax.hist(adata.obs.percent_mito, bins=100,
+                        np.percentile(adata.obs.percent_mito, 99))
                 ax.set_xlabel('Percent of mito expression')
                 ax.set_ylabel('Number of cells')
                 plt.show()
@@ -136,7 +139,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab_mito==False), len(filter_tab_mito)))
             fig, ax = plt.subplots(1, 1)
             ax.hist([adata.obs.percent_mito[filter_tab_mito], adata.obs.percent_mito[filter_tab_mito==False]],
-                    color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked')
+                    color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked',
+                    range=(0, np.percentile(adata.obs.percent_mito, 99)))
             ax.set_xlabel('Number of counts')
             ax.set_ylabel('Number of cells')
             ax.legend()
