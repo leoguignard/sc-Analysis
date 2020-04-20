@@ -77,11 +77,11 @@ def is_number(s):
     except ValueError:
         return False
 
-def get_clusters_et_al(path, size=5, filter_ncount=False, filter_mito=False):
+def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
     f = path
     ext = os.path.splitext(f)[-1]
     if ((ext == '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')))
-        and not filter_ncount and not filter_mito):
+        and not filter_ncounts and not filter_mito):
         adata = ad.read_h5ad(path.replace(ext, '.h5ad'))
         results_file = path.replace(ext, '.h5ad')
     elif ext == '.csv':
@@ -89,8 +89,8 @@ def get_clusters_et_al(path, size=5, filter_ncount=False, filter_mito=False):
         adata = ad.read_csv(f).transpose()
         sc.pp.filter_genes(adata, min_cells=3)
         sc.pp.filter_cells(adata, min_genes=200)
-        if filter_ncount:
-            if isinstance(filter_ncount, bool):
+        if filter_ncounts:
+            if isinstance(filter_ncounts, bool):
                 adata.obs['n_counts'] = adata.X.sum(axis=1)
                 fig, ax = plt.subplots(1, 1)
                 ax.hist(adata.obs.n_genes, bins=100)
@@ -101,8 +101,8 @@ def get_clusters_et_al(path, size=5, filter_ncount=False, filter_mito=False):
                     th_ncount = input('Please enter a numeric value: ')
                 th_ncount = float(th_ncount)
             else:
-                th_ncount = filter_ncount
-            filter_tab = adata.obs.n_genes < filter_ncount
+                th_ncount = filter_ncounts
+            filter_tab = adata.obs.n_genes < th_ncount
             print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab==False), len(filter_tab)))
             fig, ax = plt.subplots(1, 1)
             ax.hist([adata.obs.n_genes[filter_tab], adata.obs.n_genes[filter_tab==False]],
