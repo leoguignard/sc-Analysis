@@ -69,7 +69,15 @@ def cluster_and_plot(adata, val, c_name=None):
     sc.pl.rank_genes_groups(adata, n_genes=25, sharey=False, show=False,
                             return_fig=True, save='.wilcoxon.{:s}.pdf'.format(c_name))
 
-def get_clusters_et_al(path, size=40):
+def is_number(s):
+    """ Returns True is string is a number. """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def get_clusters_et_al(path, size=5, filter_ncount=False, filter_mito=False):
     f = path
     ext = os.path.splitext(f)[-1]
     if ext == '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')):
@@ -80,6 +88,54 @@ def get_clusters_et_al(path, size=40):
         adata = ad.read_csv(f).transpose()
         sc.pp.filter_genes(adata, min_cells=3)
         sc.pp.filter_cells(adata, min_genes=200)
+        if filter_ncount:
+            if isinstance(filter_ncount, bool):
+                adata.obs['n_counts'] = adata.X.sum(axis=1)
+                fig, ax = plt.subplots(1, 1)
+                ax.hist(adata.obs.n_genes, bins=100)
+                ax.set_xlabel('Number of counts')
+                ax.set_ylabel('Number of cells')
+                th_ncount = input('Please enter the threshold value for the maximum number of counts: ')
+                while not is_number(th_ncount):
+                    th_ncount = input('Please enter a numeric value: ')
+                th_ncount = float(th_ncount)
+            else:
+                th_ncount = filter_ncount
+            filter_tab = adata.obs.n_genes < filter_ncount
+            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab==False), len(filter_tab)))
+            fig, ax = plt.subplots(1, 1)
+            ax.hist([adata.obs.n_genes[filter_tab], adata.obs.n_genes[filter_tab==False]],
+                    color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked')
+            ax.set_xlabel('Number of counts')
+            ax.set_ylabel('Number of cells')
+            ax.legend()
+            adata = adata[filter_tab, :]
+        if filter_mito:
+            if isinstance(filter_mito, bool):
+                mito_genes = (adata.var_names.str.startswith('mt-') |
+                              adata.var_names.str.startswith('Mt-') |
+                              adata.var_names.str.startswith('MT-'))
+                adata.obs['percent_mito'] = np.sum(
+                    adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
+                fig, ax = plt.subplots(1, 1)
+                ax.hist(adata.obs.percent_mito, bins=100)
+                ax.set_xlabel('Percent of mito expression')
+                ax.set_ylabel('Number of cells')
+                th_mito = input('Please enter the threshold value for the maximum percent of mito expression: ')
+                while not is_number(th_mito):
+                    th_mito = input('Please enter a numeric value: ')
+                th_mito = float(th_mito)
+            else:
+                th_mito = filter_mito
+            filter_tab = adata.obs.percent_mito < th_mito
+            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab==False), len(filter_tab)))
+            fig, ax = plt.subplots(1, 1)
+            ax.hist([adata.obs.n_genes[filter_tab], adata.obs.n_genes[filter_tab==False]],
+                    color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked')
+            ax.set_xlabel('Number of counts')
+            ax.set_ylabel('Number of cells')
+            ax.legend()
+            adata = adata[filter_tab, :]
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
         sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
