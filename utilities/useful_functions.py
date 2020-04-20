@@ -141,10 +141,12 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             ax.set_ylabel('Number of cells')
             ax.legend()
             plt.show()
+        final_filt = np.ones_like(adata[:,0])
         if filter_ncounts:
-            adata = adata[filter_tab_ncounts, :]
+            final_filt[filter_tab_ncounts==False] = 0
         if filter_mito:
-            adata = adata[filter_tab_mito, :]
+            final_filt[filter_tab_mito==False] = 0
+        adata = adata[final_filt, :]
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
         sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
