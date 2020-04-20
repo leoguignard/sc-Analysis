@@ -104,16 +104,15 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             else:
                 th_ncount = filter_ncounts
             plt.close(fig)
-            filter_tab = adata.obs.n_genes < th_ncount
-            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab==False), len(filter_tab)))
+            filter_tab_ncounts = adata.obs.n_genes < th_ncount
+            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab_ncounts==False), len(filter_tab_ncounts)))
             fig, ax = plt.subplots(1, 1)
-            ax.hist([adata.obs.n_genes[filter_tab], adata.obs.n_genes[filter_tab==False]],
+            ax.hist([adata.obs.n_genes[filter_tab_ncounts], adata.obs.n_genes[filter_tab_ncounts==False]],
                     color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked')
             ax.set_xlabel('Number of counts')
             ax.set_ylabel('Number of cells')
             ax.legend()
             plt.show()
-            adata = adata[filter_tab, :]
         if filter_mito:
             if isinstance(filter_mito, bool):
                 mito_genes = (adata.var_names.str.startswith('mt-') |
@@ -133,16 +132,19 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             else:
                 th_mito = filter_mito
             plt.close(fig)
-            filter_tab = adata.obs.percent_mito < th_mito
-            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab==False), len(filter_tab)))
+            filter_tab_mito = adata.obs.percent_mito < th_mito
+            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab_mito==False), len(filter_tab_mito)))
             fig, ax = plt.subplots(1, 1)
-            ax.hist([adata.obs.n_genes[filter_tab], adata.obs.n_genes[filter_tab==False]],
+            ax.hist([adata.obs.percent_mito[filter_tab_mito], adata.obs.percent_mito[filter_tab_mito==False]],
                     color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked')
             ax.set_xlabel('Number of counts')
             ax.set_ylabel('Number of cells')
             ax.legend()
             plt.show()
-            adata = adata[filter_tab, :]
+        if filter_ncounts:
+            adata = adata[filter_tab_ncounts, :]
+        if filter_mito:
+            adata = adata[filter_tab_mito, :]
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
         sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
