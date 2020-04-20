@@ -94,7 +94,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
                 adata.obs['n_counts'] = adata.X.sum(axis=1)
                 fig, ax = plt.subplots(1, 1)
                 ax.hist(adata.obs.n_genes, bins=100,
-                        np.percentile(adata.obs.n_genes, 99))
+                        range=(0, np.percentile(adata.obs.n_genes, 99)))
                 ax.set_xlabel('Number of counts')
                 ax.set_ylabel('Number of cells')
                 plt.show()
@@ -110,7 +110,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             fig, ax = plt.subplots(1, 1)
             ax.hist([adata.obs.n_genes[filter_tab_ncounts], adata.obs.n_genes[filter_tab_ncounts==False]],
                     color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked',
-                    np.percentile(adata.obs.n_genes, 99))
+                    range=(0, np.percentile(adata.obs.n_genes, 99)))
             ax.set_xlabel('Number of counts')
             ax.set_ylabel('Number of cells')
             ax.legend()
@@ -124,7 +124,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
                     adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
                 fig, ax = plt.subplots(1, 1)
                 ax.hist(adata.obs.percent_mito, bins=100,
-                        np.percentile(adata.obs.percent_mito, 99))
+                        range=(0, np.percentile(adata.obs.percent_mito, 99)))
                 ax.set_xlabel('Percent of mito expression')
                 ax.set_ylabel('Number of cells')
                 plt.show()
