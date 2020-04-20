@@ -80,7 +80,8 @@ def is_number(s):
 def get_clusters_et_al(path, size=5, filter_ncount=False, filter_mito=False):
     f = path
     ext = os.path.splitext(f)[-1]
-    if ext == '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')):
+    if ((ext == '.h5ad' or os.path.exists(path.replace(ext, '.h5ad')))
+        and not filter_ncount and not filter_mito):
         adata = ad.read_h5ad(path.replace(ext, '.h5ad'))
         results_file = path.replace(ext, '.h5ad')
     elif ext == '.csv':
