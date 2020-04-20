@@ -96,12 +96,14 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
                 ax.hist(adata.obs.n_genes, bins=100)
                 ax.set_xlabel('Number of counts')
                 ax.set_ylabel('Number of cells')
+                plt.show()
                 th_ncount = input('Please enter the threshold value for the maximum number of counts: ')
                 while not is_number(th_ncount):
                     th_ncount = input('Please enter a numeric value: ')
                 th_ncount = float(th_ncount)
             else:
                 th_ncount = filter_ncounts
+            plt.close(fig)
             filter_tab = adata.obs.n_genes < th_ncount
             print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab==False), len(filter_tab)))
             fig, ax = plt.subplots(1, 1)
@@ -110,6 +112,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             ax.set_xlabel('Number of counts')
             ax.set_ylabel('Number of cells')
             ax.legend()
+            plt.show()
             adata = adata[filter_tab, :]
         if filter_mito:
             if isinstance(filter_mito, bool):
@@ -122,12 +125,14 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
                 ax.hist(adata.obs.percent_mito, bins=100)
                 ax.set_xlabel('Percent of mito expression')
                 ax.set_ylabel('Number of cells')
+                plt.show()
                 th_mito = input('Please enter the threshold value for the maximum percent of mito expression: ')
                 while not is_number(th_mito):
                     th_mito = input('Please enter a numeric value: ')
                 th_mito = float(th_mito)
             else:
                 th_mito = filter_mito
+            plt.close(fig)
             filter_tab = adata.obs.percent_mito < th_mito
             print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab==False), len(filter_tab)))
             fig, ax = plt.subplots(1, 1)
@@ -136,6 +141,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False):
             ax.set_xlabel('Number of counts')
             ax.set_ylabel('Number of cells')
             ax.legend()
+            plt.show()
             adata = adata[filter_tab, :]
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
