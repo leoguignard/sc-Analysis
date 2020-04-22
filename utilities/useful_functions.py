@@ -130,6 +130,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
             else:
                 th_ncount = filter_ncounts
             fig, ax = plt.subplots(1, 1)
+            filter_tab_ncounts = adata.obs.n_genes<th_ncount
             ax.hist([adata.obs.n_genes[filter_tab_ncounts], adata.obs.n_genes[filter_tab_ncounts==False]],
                     color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked',
                     range=(0, np.percentile(adata.obs.n_genes, 99)))
@@ -165,6 +166,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
             else:
                 th_mito = filter_mito
             plt.close(fig)
+            filter_tab_mito = adata.obs.percent_mito<th_mito
             fig, ax = plt.subplots(1, 1)
             ax.hist([adata.obs.percent_mito[filter_tab_mito], adata.obs.percent_mito[filter_tab_mito==False]],
                     color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked',
