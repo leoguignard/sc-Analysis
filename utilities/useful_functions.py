@@ -114,7 +114,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                         range=(0, np.percentile(adata.obs.n_genes, 99)))
                 ax1.set_xlabel('Number of counts')
                 ax1.set_ylabel('Number of cells')
-                ax2.hist(adata.obs.n_genes, bins=100, cumulative=True,
+                ax2.hist(adata.obs.n_genes, bins=100, cumulative=True, density=True,
                         range=(0, np.percentile(adata.obs.n_genes, 99)))
                 ax2.set_xlabel('Number of counts')
                 ax2.set_ylabel('Number of cells')
@@ -148,7 +148,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                         range=(0, np.percentile(adata.obs.percent_mito, 99)))
                 ax1.set_xlabel('Percent of mito expression')
                 ax1.set_ylabel('Number of cells')
-                ax2.hist(adata.obs.percent_mito, bins=100, cumulative=True,
+                ax2.hist(adata.obs.percent_mito, bins=100, cumulative=True, density=True,
                         range=(0, np.percentile(adata.obs.percent_mito, 99)))
                 ax2.set_xlabel('Percent of mito expression')
                 ax2.set_ylabel('Number of cells')
