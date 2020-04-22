@@ -111,7 +111,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
         if filter_ncounts:
             if isinstance(filter_ncounts, bool):
                 adata.obs['n_counts'] = adata.X.sum(axis=1)
-                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
                 ax1.hist(adata.obs.n_genes, bins=100,
                         range=(0, np.percentile(adata.obs.n_genes, 99)))
                 ax1.set_xlabel('Number of counts')
@@ -119,7 +119,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                 ax2.hist(adata.obs.n_genes, bins=100, cumulative=True, density=True,
                         range=(0, np.percentile(adata.obs.n_genes, 99)))
                 ax2.set_xlabel('Number of counts')
-                ax2.set_ylabel('Number of cells')
+                ax2.set_ylabel('Ratio of cells')
+                ax2.grid(True, axis='y')
                 fig.tight_layout()
                 plt.show()
                 th_ncount = input('Please enter the threshold value for the maximum number of counts: ')
@@ -147,7 +148,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                               adata.var_names.str.startswith('MT-'))
                 adata.obs['percent_mito'] = np.sum(
                     adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
-                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
                 ax1.hist(adata.obs.percent_mito, bins=100,
                         range=(0, np.percentile(adata.obs.percent_mito, 99)))
                 ax1.set_xlabel('Percent of mito expression')
@@ -155,7 +156,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                 ax2.hist(adata.obs.percent_mito, bins=100, cumulative=True, density=True,
                         range=(0, np.percentile(adata.obs.percent_mito, 99)))
                 ax2.set_xlabel('Percent of mito expression')
-                ax2.set_ylabel('Number of cells')
+                ax2.set_ylabel('Ratio of cells')
+                ax2.grid(True, axis='y')
                 fig.tight_layout()
                 plt.show()
                 th_mito = input('Please enter the threshold value for the maximum percent of mito expression: ')
