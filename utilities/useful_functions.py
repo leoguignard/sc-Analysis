@@ -92,6 +92,7 @@ def get_threshold(th, tab):
             th = input('Please enter a numeric value: ')
         th = float(th)
         filt_tab = tab < th
+        rem = np.sum(filt_tab==False)
         print('You are now removing {:d} cells over a total of {:d} ({:.2f}%)'.format(rem, len_tab, 100*rem/len_tab))
         ans = input('Are you satisfied? (y/n) ')
     return th
