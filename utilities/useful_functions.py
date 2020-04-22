@@ -7,7 +7,6 @@
 import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from matplotlib_venn import venn3
 import os
 import scanpy as sc
 import anndata as ad
