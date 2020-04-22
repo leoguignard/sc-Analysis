@@ -90,6 +90,7 @@ def get_threshold(th, tab):
         th = input('Please enter a new threshold value: ')
         while not is_number(th):
             th = input('Please enter a numeric value: ')
+        th = float(th)
         filt_tab = tab < th
         print('You are now removing {:d} cells over a total of {:d} ({:.2f}%)'.format(rem, len_tab, 100*rem/len_tab))
         ans = input('Are you satisfied? (y/n) ')
