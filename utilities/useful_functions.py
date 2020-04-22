@@ -94,6 +94,7 @@ def get_threshold(th, tab):
         filt_tab = tab < th
         print('You are now removing {:d} cells over a total of {:d} ({:.2f}%)'.format(rem, len_tab, 100*rem/len_tab))
         ans = input('Are you satisfied? (y/n) ')
+    return th
 
 def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, reload_file=False):
     f = path
@@ -110,7 +111,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
         if filter_ncounts:
             if isinstance(filter_ncounts, bool):
                 adata.obs['n_counts'] = adata.X.sum(axis=1)
-                fig, (ax1, ax2) = plt.subplots(1, 2)
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
                 ax1.hist(adata.obs.n_genes, bins=100,
                         range=(0, np.percentile(adata.obs.n_genes, 99)))
                 ax1.set_xlabel('Number of counts')
@@ -119,6 +120,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                         range=(0, np.percentile(adata.obs.n_genes, 99)))
                 ax2.set_xlabel('Number of counts')
                 ax2.set_ylabel('Number of cells')
+                fig.tight_layout()
                 plt.show()
                 th_ncount = input('Please enter the threshold value for the maximum number of counts: ')
                 th_ncount = get_threshold(th_ncount, adata.obs.n_genes)
@@ -144,7 +146,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                               adata.var_names.str.startswith('MT-'))
                 adata.obs['percent_mito'] = np.sum(
                     adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
-                fig, (ax1, ax2) = plt.subplots(1, 2)
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
                 ax1.hist(adata.obs.percent_mito, bins=100,
                         range=(0, np.percentile(adata.obs.percent_mito, 99)))
                 ax1.set_xlabel('Percent of mito expression')
@@ -153,6 +155,7 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                         range=(0, np.percentile(adata.obs.percent_mito, 99)))
                 ax2.set_xlabel('Percent of mito expression')
                 ax2.set_ylabel('Number of cells')
+                fig.tight_layout()
                 plt.show()
                 th_mito = input('Please enter the threshold value for the maximum percent of mito expression: ')
                 th_mito = get_threshold(th_mito, adata.obs.percent_mito)
