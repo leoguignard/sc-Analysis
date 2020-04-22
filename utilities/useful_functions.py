@@ -7,6 +7,7 @@
 import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+from matplotlib_venn import venn3
 import os
 import scanpy as sc
 import anndata as ad
@@ -77,6 +78,23 @@ def is_number(s):
     except ValueError:
         return False
 
+def get_threshold(th, tab):
+    while not is_number(th):
+        th = input('Please enter a numeric value: ')
+    th = float(th)
+    filt_tab = tab < th
+    rem = np.sum(filt_tab==False)
+    len_tab = len(filt_tab)
+    print('You are removing {:d} cells over a total of {:d} ({:.2f}%)'.format(rem, len_tab, 100*rem/len_tab))
+    ans = input('Are you satisfied? (y/n) ')
+    while ans!='y':
+        th = input('Please enter a new threshold value: ')
+        while not is_number(th):
+            th = input('Please enter a numeric value: ')
+        filt_tab = tab < th
+        print('You are now removing {:d} cells over a total of {:d} ({:.2f}%)'.format(rem, len_tab, 100*rem/len_tab))
+        ans = input('Are you satisfied? (y/n) ')
+
 def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, reload_file=False):
     f = path
     ext = os.path.splitext(f)[-1]
@@ -92,21 +110,23 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
         if filter_ncounts:
             if isinstance(filter_ncounts, bool):
                 adata.obs['n_counts'] = adata.X.sum(axis=1)
-                fig, ax = plt.subplots(1, 1)
-                ax.hist(adata.obs.n_genes, bins=100,
+                fig, (ax1, ax2) = plt.subplots(1, 2)
+                ax1.hist(adata.obs.n_genes, bins=100,
                         range=(0, np.percentile(adata.obs.n_genes, 99)))
-                ax.set_xlabel('Number of counts')
-                ax.set_ylabel('Number of cells')
+                ax1.set_xlabel('Number of counts')
+                ax1.set_ylabel('Number of cells')
+                ax2.hist(adata.obs.n_genes, bins=100, cumulative=True,
+                        range=(0, np.percentile(adata.obs.n_genes, 99)))
+                ax2.set_xlabel('Number of counts')
+                ax2.set_ylabel('Number of cells')
                 plt.show()
                 th_ncount = input('Please enter the threshold value for the maximum number of counts: ')
+                th_ncount = get_threshold(th_ncount, adata.obs.n_genes)
                 while not is_number(th_ncount):
                     th_ncount = input('Please enter a numeric value: ')
                 th_ncount = float(th_ncount)
             else:
                 th_ncount = filter_ncounts
-            plt.close(fig)
-            filter_tab_ncounts = adata.obs.n_genes < th_ncount
-            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab_ncounts==False), len(filter_tab_ncounts)))
             fig, ax = plt.subplots(1, 1)
             ax.hist([adata.obs.n_genes[filter_tab_ncounts], adata.obs.n_genes[filter_tab_ncounts==False]],
                     color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked',
@@ -115,6 +135,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
             ax.set_ylabel('Number of cells')
             ax.legend()
             plt.show()
+        else:
+            filter_tab_ncounts = np.ones(adata.shape[0], dtype=bool)
         if filter_mito:
             if isinstance(filter_mito, bool):
                 mito_genes = (adata.var_names.str.startswith('mt-') |
@@ -122,21 +144,24 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
                               adata.var_names.str.startswith('MT-'))
                 adata.obs['percent_mito'] = np.sum(
                     adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
-                fig, ax = plt.subplots(1, 1)
-                ax.hist(adata.obs.percent_mito, bins=100,
+                fig, (ax1, ax2) = plt.subplots(1, 2)
+                ax1.hist(adata.obs.percent_mito, bins=100,
                         range=(0, np.percentile(adata.obs.percent_mito, 99)))
-                ax.set_xlabel('Percent of mito expression')
-                ax.set_ylabel('Number of cells')
+                ax1.set_xlabel('Percent of mito expression')
+                ax1.set_ylabel('Number of cells')
+                ax2.hist(adata.obs.percent_mito, bins=100, cumulative=True,
+                        range=(0, np.percentile(adata.obs.percent_mito, 99)))
+                ax2.set_xlabel('Percent of mito expression')
+                ax2.set_ylabel('Number of cells')
                 plt.show()
                 th_mito = input('Please enter the threshold value for the maximum percent of mito expression: ')
+                th_mito = get_threshold(th_mito, adata.obs.percent_mito)
                 while not is_number(th_mito):
                     th_mito = input('Please enter a numeric value: ')
                 th_mito = float(th_mito)
             else:
                 th_mito = filter_mito
             plt.close(fig)
-            filter_tab_mito = adata.obs.percent_mito < th_mito
-            print('You are removing {:d} cells over a total of {:d}:'.format(np.sum(filter_tab_mito==False), len(filter_tab_mito)))
             fig, ax = plt.subplots(1, 1)
             ax.hist([adata.obs.percent_mito[filter_tab_mito], adata.obs.percent_mito[filter_tab_mito==False]],
                     color=['k', 'r'], label=['kept', 'removed'], bins=100, histtype='barstacked',
@@ -145,11 +170,23 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
             ax.set_ylabel('Number of cells')
             ax.legend()
             plt.show()
+        else:
+            filter_tab_mito = np.ones(adata.shape[0], dtype=bool)
         final_filt = np.ones(adata.shape[0], dtype=bool)
         if filter_ncounts:
             final_filt[filter_tab_ncounts==False] = False
         if filter_mito:
             final_filt[filter_tab_mito==False] = False
+        both = np.sum((filter_tab_ncounts+filter_tab_mito)==0)
+        diff = filter_tab_ncounts-filter_tab_mito
+        nc = np.sum(diff==-1)
+        mito = np.sum(diff==1)
+        pie_values = [np.sum(final_filt), nc, both, mito]
+        fig, ax = plt.subplots()
+        ax.pie(pie_values, labels=['Kept', 'ncounts', 'both', 'mito'],
+                shadow=False, startangle=90)
+        ax.axis('equal')
+
         adata = adata[final_filt, :]
         sc.pp.normalize_total(adata, target_sum=1e4)
         sc.pp.log1p(adata)
