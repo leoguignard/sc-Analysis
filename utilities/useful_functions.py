@@ -80,10 +80,10 @@ def is_number(s):
 def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, reload_file=False):
     f = path
     ext = os.path.splitext(f)[-1]
-    if not reload_file and (ext == '.h5ad' or os.path.exits(path.replace(ext, '.h5ad'))):
+    if not reload_file and (ext == '.h5ad' or os.path.exists(path.replace(ext, '.h5ad'))):
         results_file = path.replace(ext, '.h5ad')
         adata = ad.read_h5ad(results_file)
-    elif ext == '.csv' or os.path.exits(path.replace(ext, '.csv')):
+    elif ext == '.csv' or os.path.exists(path.replace(ext, '.csv')):
         results_file = path.replace(ext, '.h5ad')
         path = path.replace(ext, '.csv')
         adata = ad.read_csv(path).transpose()
