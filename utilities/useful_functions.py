@@ -185,8 +185,8 @@ def get_clusters_et_al(path, size=5, filter_ncounts=False, filter_mito=False, re
             final_filt[filter_tab_ncounts==False] = False
         if filter_mito:
             final_filt[filter_tab_mito==False] = False
-        both = np.sum((filter_tab_ncounts+filter_tab_mito)==0)
-        diff = filter_tab_ncounts-filter_tab_mito
+        both = np.sum((filter_tab_ncounts.astype(int)+filter_tab_mito)==0)
+        diff = filter_tab_ncounts.astype(int)-filter_tab_mito
         nc = np.sum(diff==-1)
         mito = np.sum(diff==1)
         pie_values = [np.sum(final_filt), nc, both, mito]
